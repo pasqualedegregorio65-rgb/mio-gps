@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Mio Localizzatore</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+        button { 
+            display: block; width: 100%; padding: 20px; margin: 10px 0; 
+            font-size: 18px; cursor: pointer; border-radius: 10px; border: none; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-save { background-color: #4CAF50; color: white; }
+        .btn-go { background-color: #2196F3; color: white; }
+        #stato { margin-top: 20px; color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>📍 Dove sono?</h1>
+    <button class="btn-save" onclick="salvaPosizione()">Salva questa posizione</button>
+    <button class="btn-go" onclick="ritornaLi()">Riportami lì</button>
+    <p id="stato">Nessuna posizione salvata</p>
+
+    <script>
+        function salvaPosizione() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const pos = { lat: position.coords.latitude, lon: position.coords.longitude };
+                    localStorage.setItem('miaPosizione', JSON.stringify(pos));
+                    document.getElementById('stato').innerHTML = "✅ Posizione salvata con successo!";
+                }, function() {
+                    alert("Errore: Assicurati di aver attivato il GPS!");
+                });
+            }
+        }
+
+        function ritornaLi() {
+            const salvata = JSON.parse(localStorage.getItem('miaPosizione'));
+            if (salvata) {
+                const url = `https://www.google.com/maps/dir/?api=1&destination=${salvata.lat},${salvata.lon}`;
+                window.open(url, '_blank');
+            } else {
+                alert("Non hai ancora salvato nessuna posizione!");
+            }
+        }
+    </script>
+</body>
+</html>
