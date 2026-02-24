@@ -5,98 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Il Mio Localizzatore</title>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            text-align: center; 
-            padding: 20px; 
-            background-color: #f0f2f5; 
-            color: #1c1e21;
-        }
-        h1 { margin-bottom: 30px; font-size: 24px; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f0f2f5; }
+        h1 { color: #1c1e21; }
         button { 
-            display: block; 
-            width: 100%; 
-            max-width: 300px;
-            margin: 15px auto;
-            padding: 18px; 
-            font-size: 18px; 
-            font-weight: bold;
-            cursor: pointer; 
-            border-radius: 12px; 
-            border: none; 
+            display: block; width: 100%; max-width: 300px; margin: 15px auto;
+            padding: 18px; font-size: 18px; font-weight: bold;
+            cursor: pointer; border-radius: 12px; border: none; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: transform 0.1s;
         }
-        button:active { transform: scale(0.98); }
-        
         .btn-save { background-color: #4CAF50; color: white; }
         .btn-go { background-color: #2196F3; color: white; }
         .btn-wa { background-color: #25D366; color: white; }
-        
-        #stato { 
-            margin-top: 25px; 
-            padding: 10px;
-            font-size: 16px;
-            color: #65676b; 
-            background: white;
-            border-radius: 8px;
-            display: inline-block;
-        }
+        #stato { margin-top: 25px; padding: 10px; color: #65676b; background: white; border-radius: 8px; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <h1>📍 Localizzatore Personale</h1>
-    
+    <h1>📍 Mio Localizzatore</h1>
     <button class="btn-save" onclick="salvaPosizione()">📌 Salva Posizione</button>
     <button class="btn-go" onclick="ritornaLi()">🚗 Riportami lì</button>
     <button class="btn-wa" onclick="condividiWhatsApp()">📲 Invia su WhatsApp</button>
-    
     <div id="stato">Nessuna posizione salvata</div>
 
     <script>
-        // Funzione per salvare la posizione nel telefono
         function salvaPosizione() {
             if (navigator.geolocation) {
-                document.getElementById('stato').innerHTML = "Ricerca segnale GPS...";
+                document.getElementById('stato').innerHTML = "Ricerca segnale...";
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    const pos = {
-                        lat: position.coords.latitude,
-                        lon: position.coords.longitude,
-                        time: new Date().toLocaleString()
-                    };
-                    localStorage.setItem('miaPosizione', JSON.stringify(pos));
-                    document.getElementById('stato').innerHTML = "✅ Salvata: " + pos.time;
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    localStorage.setItem('lat', lat);
+                    localStorage.setItem('lon', lon);
+                    document.getElementById('stato').innerHTML = "✅ Salvata alle: " + new Date().toLocaleTimeString();
                 }, function(error) {
-                    alert("Errore GPS: Assicurati che la geolocalizzazione sia attiva.");
-                }, { enableHighAccuracy: true });
-            } else {
-                alert("Il tuo browser non supporta il GPS.");
+                    alert("Attiva il GPS del telefono!");
+                });
             }
         }
 
-        // Funzione per aprire Google Maps con il PIN
         function ritornaLi() {
-            const salvata = JSON.parse(localStorage.getItem('miaPosizione'));
-            if (salvata) {
-                // Il parametro ?q= crea il segnaposto rosso sulla mappa
-                const url = `https://www.google.com/maps/search/?api=1&query=${salvata.lat},${salvata.lon}`;
-                window.open(url, '_blank');
+            const lat = localStorage.getItem('lat');
+            const lon = localStorage.getItem('lon');
+            if (lat && lon) {
+                // Link corretto per Google Maps con PIN
+                window.open("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lon, "_blank");
             } else {
-                alert("Non hai ancora salvato nessuna posizione!");
+                alert("Salva prima una posizione!");
             }
         }
 
-        // Funzione per inviare le coordinate su WhatsApp
         function condividiWhatsApp() {
-            const salvata = JSON.parse(localStorage.getItem('miaPosizione'));
-            if (salvata) {
-                const linkMappa = `https://www.google.com/maps/search/?api=1&query=${salvata.lat},${salvata.lon}`;
-                const messaggio = `Ciao! Ecco la posizione che ho salvato: ${linkMappa}`;
-                const urlWA = `https://wa.me/?text=${encodeURIComponent(messaggio)}`;
-                window.open(urlWA, '_blank');
+            const lat = localStorage.getItem('lat');
+            const lon = localStorage.getItem('lon');
+            if (lat && lon) {
+                const link = "https://www.google.com/maps/search/?api=1&query=" + lat + "," + lon;
+                const messaggio = encodeURIComponent("Ecco la mia posizione: " + link);
+                window.open("https://wa.me/?text=" + messaggio, "_blank");
             } else {
-                alert("Salva prima una posizione da condividere!");
+                alert("Salva prima una posizione!");
             }
         }
     </script>
